@@ -8,7 +8,7 @@ class Hacker(object):
     def __init__(self, ip_address, port, msg):
         self.ip_address = ip_address
         self.port = int(port)
-        self.msg = msg
+        # self.msg = msg
         self.client_socket = socket.socket()
         self.address = (self.ip_address, self.port)
 
@@ -19,6 +19,10 @@ class Hacker(object):
         response = response.decode()
         print(response)
 
+    def construct_pass(self):
+        keys = map(chr, range(97, 123))
+        keys = keys.append(map(chr, range(48, 58)))
+
     def closing(self):
         self.client_socket.close()
 
@@ -27,3 +31,5 @@ args = sys.argv
 start = Hacker(*args[1:])
 start.main()
 start.closing()
+
+# TODO
