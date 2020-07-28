@@ -1,12 +1,11 @@
-import random
-import socket
-from itertools import product
-from threading import Thread
-from time import sleep
-
-from hstest.check_result import CheckResult
 from hstest.stage_test import StageTest
 from hstest.test_case import TestCase
+from hstest.check_result import CheckResult
+from threading import Thread
+from time import sleep
+from itertools import product
+import socket
+import random
 
 CheckResult.correct = lambda: CheckResult(True, '')
 CheckResult.wrong = lambda feedback: CheckResult(False, feedback)
