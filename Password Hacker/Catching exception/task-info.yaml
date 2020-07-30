@@ -191,17 +191,9 @@ files:
 - name: hacking/jsonkeygen.py
   visible: true
   learner_created: true
+- name: hacking/server.py
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/80/stages/445/implement
-status: Failed
-feedback:
-  message: |-
-    Exception in test #1
-
-    Traceback (most recent call last):
-      File "hack.py", line 60, in <module>
-        start.main()
-      File "hack.py", line 36, in main
-        response = json.loads(response)
-    json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
-  time: Wed, 29 Jul 2020 11:23:48 UTC
-record: -1
+status: Solved
+record: 4
